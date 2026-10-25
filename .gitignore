@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.env
+alerts/*.jpg
+alerts/alerts_log.jsonl
+*.mp4
+*.pt
+.DS_Store

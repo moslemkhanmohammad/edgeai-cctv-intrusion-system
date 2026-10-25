@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body { margin: 0; background: #0e1117; color: #fff; font-family: sans-serif; overflow: hidden; }
+        #container { position: relative; display: inline-block; user-select: none; }
+        canvas { display: block; border: 2px solid #444; border-radius: 6px; cursor: crosshair; max-width: 100%; }
+        #info { margin-top: 6px; font-family: monospace; font-size: 12px; color: #4CAF50; }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <canvas id="canvas"></canvas>
+        <div id="info">Click & drag on the camera view to draw a new zone.</div>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const info = document.getElementById('info');
+
+        let bgImage = new Image();
+        let startX = 0, startY = 0, endX = 0, endY = 0;
+        let isDrawing = false;
+        let hasBox = false;
+
+        function sendSize() {
+            if (window.Streamlit) {
+                window.Streamlit.setFrameHeight(canvas.height + 40);
+            }
+        }
+
+        function redraw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (bgImage.complete && bgImage.naturalWidth > 0) {
+                ctx.drawImage(bgImage, 0, 0);
+            }
+            if (hasBox) {
+                let rx = Math.min(startX, endX);
+                let ry = Math.min(startY, endY);
+                let rw = Math.abs(endX - startX);
+                let rh = Math.abs(endY - startY);
+
+                ctx.strokeStyle = '#FF3333';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(rx, ry, rw, rh);
+                ctx.fillStyle = 'rgba(255, 51, 51, 0.25)';
+                ctx.fillRect(rx, ry, rw, rh);
+            }
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            startX = Math.round((e.clientX - rect.left) * scaleX);
+            startY = Math.round((e.clientY - rect.top) * scaleY);
+            endX = startX;
+            endY = startY;
+            isDrawing = true;
+            hasBox = true;
+            redraw();
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            endX = Math.round((e.clientX - rect.left) * scaleX);
+            endY = Math.round((e.clientY - rect.top) * scaleY);
+            redraw();
+            info.innerText = `Drawing... X1: ${Math.min(startX, endX)}, Y1: ${Math.min(startY, endY)}, W: ${Math.abs(endX - startX)}, H: ${Math.abs(endY - startY)}`;
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            if (!isDrawing) return;
+            isDrawing = false;
+            let x1 = Math.min(startX, endX);
+            let y1 = Math.min(startY, endY);
+            let x2 = Math.max(startX, endX);
+            let y2 = Math.max(startY, endY);
+
+            if (x2 - x1 < 10 || y2 - y1 < 10) {
+                hasBox = false;
+                redraw();
+                info.innerText = "Box too small. Please drag a larger area.";
+                return;
+            }
+
+            info.innerHTML = `✅ Selected: [${x1}, ${y1}] to [${x2}, ${y2}]`;
+            
+            if (window.Streamlit) {
+                window.Streamlit.setComponentValue({
+                    x1: x1,
+                    y1: y1,
+                    x2: x2,
+                    y2: y2,
+                    timestamp: Date.now()
+                });
+            }
+        });
+
+        function onRender(event) {
+            const data = event.detail;
+            if (data && data.args) {
+                if (data.args.bg_base64) {
+                    bgImage.src = "data:image/jpeg;base64," + data.args.bg_base64;
+                    bgImage.onload = () => {
+                        canvas.width = bgImage.naturalWidth || 640;
+                        canvas.height = bgImage.naturalHeight || 480;
+                        redraw();
+                        sendSize();
+                    };
+                }
+                if (data.args.reset) {
+                    hasBox = false;
+                    redraw();
+                }
+            }
+        }
+
+        window.addEventListener("streamlit:render", onRender);
+        setTimeout(() => {
+            if (window.Streamlit) {
+                window.Streamlit.setComponentReady();
+                sendSize();
+            }
+        }, 100);
+    </script>
+</body>
+</html>

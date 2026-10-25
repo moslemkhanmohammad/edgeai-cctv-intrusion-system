@@ -1,0 +1,19 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir fastapi uvicorn opencv-python-headless pillow requests
+
+COPY cctv_fixed/ /app/cctv_fixed/
+
+# باز کردن پورت ۸۰۸۹ برای دسترسی خارج از کانتینر
+EXPOSE 8089
+
+# اجرای سرور FastAPI
+CMD ["python", "cctv_fixed/fastapi_gateway.py"]

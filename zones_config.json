@@ -1,0 +1,85 @@
+{
+    "zones": [
+        {
+            "id": "zone_1792851636",
+            "name": "Zone 2",
+            "targets": [
+                "car"
+            ],
+            "polygon": [
+                [
+                    26,
+                    263
+                ],
+                [
+                    380,
+                    253
+                ],
+                [
+                    389,
+                    426
+                ],
+                [
+                    29,
+                    431
+                ]
+            ],
+            "cooldown_seconds": 8,
+            "enabled": true
+        },
+        {
+            "id": "zone_1792851822",
+            "name": "person",
+            "targets": [
+                "person"
+            ],
+            "polygon": [
+                [
+                    610,
+                    154
+                ],
+                [
+                    223,
+                    165
+                ],
+                [
+                    217,
+                    9
+                ],
+                [
+                    634,
+                    3
+                ]
+            ],
+            "cooldown_seconds": 8,
+            "enabled": true
+        },
+        {
+            "id": "zone_1792933445",
+            "name": "Zone 3",
+            "targets": [
+                "person"
+            ],
+            "polygon": [
+                [
+                    676,
+                    280
+                ],
+                [
+                    482,
+                    275
+                ],
+                [
+                    484,
+                    417
+                ],
+                [
+                    713,
+                    391
+                ]
+            ],
+            "cooldown_seconds": 8,
+            "enabled": true
+        }
+    ]
+}

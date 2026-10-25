@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # سرویس پردازش هوش مصنوعی
+  ai-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile.ai
+    container_name: cctv_ai_engine
+    restart: always
+    environment:
+      - RTSP_URL=person-bicycle-car-detection.mp4
+      - MODEL_PATH=yolo11s.pt
+    volumes:
+      # به اشتراک‌گذاری داده‌ها و فریم‌های زنده بین دو کانتینر و هاست
+      - ./shared_data:/app/cctv_fixed/data
+      - ./alerts:/app/alerts
+
+  # سرویس استریم و گیت‌وی FastAPI
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    container_name: cctv_streaming_gateway
+    restart: always
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./shared_data:/app/cctv_fixed/data
+      - ./alerts:/app/alerts
+    depends_on:
+      - ai-engine

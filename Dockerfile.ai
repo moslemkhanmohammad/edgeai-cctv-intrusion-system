@@ -1,0 +1,23 @@
+# استفاده از نسخه سبک پایتون
+FROM python:3.11-slim
+
+# تنظیم دایرکتوری کاری کانتینر
+WORKDIR /app
+
+# نصب پکیج‌های پیش‌نیاز سیستمی لینوکس برای اجرای OpenCV
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 \
+    libglib2.0-0 \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# کپی فایل پیش‌نیازها و نصب کتابخانه‌ها
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# کپی کدهای پروژه به داخل کانتینر
+COPY cctv_fixed/ /app/cctv_fixed/
+COPY person-bicycle-car-detection.mp4 /app/
+
+# اجرای اسکریپت اصلی پردازش زون‌ها
+CMD ["python", "cctv_fixed/run_ai.py"]
