@@ -28,8 +28,8 @@ RAW_FRAME = "raw_frame.jpg"
 ALERTS_DIR = "alerts"
 ALERTS_LOG = os.path.join(ALERTS_DIR, "alerts_log.jsonl")
 
-TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "*******")
-TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "172403756")
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "*****")
+TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "YOUR_CHAT_ID_HERE")
 TELEGRAM_ENABLED = True
 STREAM_PORT = 8089
 
